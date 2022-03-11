@@ -1,5 +1,7 @@
 # control_gui
 
+## Subscriber
+`/detection_result/image`, `Image` (porposted) get the detection result and show in the GUI
 
 ## Update Blog
 2022-3-8-22:50 rename `Pose.py` to `control_gui.py` and correct the Icon path by `rospkg`, integrate all the things into roslaunch file (commit by Hei)
