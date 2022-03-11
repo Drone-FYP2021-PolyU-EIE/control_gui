@@ -50,7 +50,7 @@ class control_node(object):
         root.config(menu=menubar)
 
         #title style
-        title_font = tkfont.Font(family='Helvetica', size=24, weight="bold", slant="italic")
+        title_font = tkfont.Font(family='Helvetica', size=18, weight="bold", slant="italic")
 
         #title body
         title = tk.Label(titlef, text="Control GUI", font=title_font, anchor="e" )
@@ -143,7 +143,7 @@ class control_node(object):
         positionSate.grid(row=4, column=0, columnspan=5,sticky="W")
         posscroll = tk.Scrollbar(positionSate) 
         posscroll.pack(side = "right", fill = "y") 
-        self.poslist = tk.Listbox(positionSate, width=55, yscrollcommand = posscroll.set )  
+        self.poslist = tk.Listbox(positionSate, width=52, yscrollcommand = posscroll.set )  
         self.poslist.pack(side = "left", fill = "both")    
         posscroll.config(command = self.poslist.yview) 
 
@@ -159,29 +159,40 @@ class control_node(object):
         setposSate.grid(row=6, column=0, columnspan=5,sticky="W")
         xlabel = tk.Label(setposSate, text="x:")
         xlabel.grid(row=0, column=0, columnspan=1)
-        self.xentry = tk.Entry(setposSate) 
+        self.xentry = tk.Entry(setposSate,state="disabled") 
         self.xentry.grid(row=0, column=1, columnspan=1)
         ylabel = tk.Label(setposSate, text="y:")
         ylabel.grid(row=0, column=2, columnspan=1)
-        self.yentry = tk.Entry(setposSate) 
+        self.yentry = tk.Entry(setposSate,state="disabled") 
         self.yentry.grid(row=0, column=3, columnspan=1)
         zlabel = tk.Label(setposSate, text="z:")
         zlabel.grid(row=0, column=4, columnspan=1)
-        self.zentry = tk.Entry(setposSate) 
+        self.zentry = tk.Entry(setposSate,state="disabled") 
         self.zentry.grid(row=0, column=5, columnspan=1)
         rzlabel = tk.Label(setposSate, text=" Rotation z:")
         rzlabel.grid(row=0, column=6, columnspan=1)
-        self.rzentry = tk.Entry(setposSate) 
+        self.rzentry = tk.Entry(setposSate,state="disabled") 
         self.rzentry.grid(row=0, column=7, columnspan=1)
 
-        self.setposbt = tk.Button(setposSate, text="Set Position", width=10, bd=2, cursor="exchange", command = lambda: self.setpos())
+        self.setposbt = tk.Button(setposSate, text="Set Position", width=10, bd=2, cursor="exchange", command = lambda: self.setpos(),state="disabled")
         self.setposbt.grid(row=1, column=3, columnspan=1)
         
-        self.clearbt = tk.Button(setposSate, text="Clear", width=10, bd=2, cursor="exchange", command = lambda: self.clear())
+        self.clearbt = tk.Button(setposSate, text="Clear", width=10, bd=2, cursor="exchange", command = lambda: self.clear(),state="disabled")
         self.clearbt.grid(row=1, column=1, columnspan=1)
 
         self.canvas = tk.Canvas(root, width = 250, height = 200)  
         self.canvas.grid(row=3, column=4, columnspan=1)
+
+        # Add image from detection
+        poseimage = tk.LabelFrame(root, text="Show the Pose", width=400, height = 220)
+        poseimage.grid(row=4, column=5, columnspan=5,sticky="W")
+        self.poseimg = tk.Canvas(poseimage, width = 300, height = 200)  
+        self.poseimg.grid(row=4, column=4, columnspan=1)
+
+        deteimage = tk.LabelFrame(root, text="Show the Detection", width=400, height = 220)
+        deteimage.grid(row=3, column=5, columnspan=5,sticky="W")
+        self.detimg = tk.Canvas(deteimage, width = 300, height = 200)  
+        self.detimg.grid(row=3, column=4, columnspan=1)
 
         self.setArm()
         # We need to send few setpoint messages, then activate OFFBOARD mode, to take effect
@@ -227,7 +238,7 @@ class control_node(object):
     def state_cb(self, msg):
         self.state = msg
 
-    def image_cb(self,data):
+    def pose_cb(self,data):
         
         try:
             self.cv_image = np.asarray(self.bridge.imgmsg_to_cv2(data, "8UC3"))
@@ -244,6 +255,22 @@ class control_node(object):
 
         self.cvimgtk = ImageTk.PhotoImage(image = self.cvimg)
         self.canvas.create_image(20,20,anchor = "nw", image = self.cvimgtk)
+
+    def detect_cb(self,data):
+        
+        try:
+            self.dt_image = np.asarray(self.bridge.imgmsg_to_cv2(data, "8UC3"))
+        except CvBridgeError as e:
+            print(e)
+        cv2.waitKey(1)
+        #Rearrange colors
+        blue,green,red = cv2.split(self.dt_image)
+        self.dt_image = cv2.merge((red,green,blue))
+        self.dtimg = PIL.Image.fromarray(self.dt_image)
+        self.dtimg  = self.dtimg.resize((250, 200))
+
+        self.dtimg = ImageTk.PhotoImage(image = self.dtimg)
+        self.detimg.create_image(20,20, anchor = "nw", image = self.dtimg)
 
     def num_cb(self, data):
         if(data == "1"):
@@ -379,7 +406,7 @@ class control_node(object):
         self.ps.pose.position.z = self.local_pos_z
         self.ps.pose.orientation.x = self.local_quat_x 
         self.ps.pose.orientation.y = self.local_quat_y
-        self.ps.pose.orientation.z = -0.2
+        self.ps.pose.orientation.z = self.local_quat_z - 0.1
         self.ps.pose.orientation.w = self.local_quat_w
         print("rotate right")
         self.var.set("rotate right")
@@ -391,7 +418,7 @@ class control_node(object):
         self.ps.pose.position.z = self.local_pos_z
         self.ps.pose.orientation.x = self.local_quat_x 
         self.ps.pose.orientation.y = self.local_quat_y
-        self.ps.pose.orientation.z = 0.2
+        self.ps.pose.orientation.z = self.local_quat_z + 0.1
         self.ps.pose.orientation.w = self.local_quat_w
         print("rotate left")
         self.var.set("rotate left")
@@ -467,6 +494,7 @@ class control_node(object):
         self.xentry.delete(0, 'end')
         self.yentry.delete(0, 'end')
         self.zentry.delete(0, 'end')
+        self.rzentry.delete(0, 'end')
 
     def auto(self):
         self.st= "U"
@@ -480,9 +508,13 @@ class control_node(object):
         self.upbt["state"] = "disabled" 
         self.rrightbt["state"] = "disabled"
         self.rleftbt["state"] = "disabled"
-        # self.robt["state"] = "disabled"
         self.stopbt["state"] = "disabled"
-        # self.orgbt["state"] = "disabled" 
+        self.xentry["state"] = "disabled"
+        self.yentry["state"] = "disabled"
+        self.zentry["state"] = "disabled"
+        self.rzentry["state"] = "disabled"
+        self.setposbt["state"] = "disabled"
+        self.clearbt["state"] = "disabled"
         self.var.set("Auto loop")
         if (self.local_pos_z < 1.8):
             self.ps.pose.position.x = self.local_pos_x
@@ -534,16 +566,22 @@ class control_node(object):
         self.rrightbt["state"] = "normal"
         self.rleftbt["state"] = "normal"  
         self.stopbt["state"] = "normal" 
+        self.xentry["state"] = "normal"
+        self.yentry["state"] = "normal"
+        self.zentry["state"] = "normal"
+        self.rzentry["state"] = "normal"
+        self.setposbt["state"] = "normal"
+        self.clearbt["state"] = "normal"
     
     def first(self):
-        self.st = "C"
+        self.st = "Y"
         self.poslist.insert(0, "local position x: {} local position y: {} local position z: {}".format(self.local_pos_x,self.local_pos_y,self.local_pos_z))
         self.orilist.insert(0, "local quaternion x: {} local quaternion y: {} local quaternion z: {} local quaternion w: {}".format(self.local_quat_x,self.local_quat_y,self.local_quat_z,self.local_quat_w))
-        self.var.set("Select a mode")
-        # if (self.state.armed == True):
-        #     self.var.set("Select a mode")
-        # else:
-        #     self.var.set("Need Reinitiate")
+        
+        if self.state.armed == True:
+            self.var.set("Select a mode")
+        else:
+            self.var.set("Need Reinitiate")
 
     def main(self): 
         self.rate = rospy.Rate(20.0)
@@ -553,9 +591,10 @@ class control_node(object):
         rospy.Subscriber('mavros/local_position/pose', PoseStamped, self.pos_cb)
         # Setpoint publisher  
         self.sp_pub = rospy.Publisher('/mavros/setpoint_position/local', PoseStamped, queue_size=10)
-        # Subscribe to the cv2 image
-        self.image_subscriber = rospy.Subscriber('/detected_human',Image,self.image_cb)
-        self.pos_subscriber = rospy.Subscriber('/detected_human_gesture',String,self.num_cb)
+        # Subscribe to the cv2 image and pose
+        self.pose_subscriber = rospy.Subscriber('/detected_human',Image,self.pose_cb)
+        self.detect_subscriber = rospy.Subscriber('/image',Image,self.detect_cb)
+        self.posnm_subscriber = rospy.Subscriber('/detected_human_gesture',String,self.num_cb)
         # un doc change
         self.automode_pub = rospy.Publisher("/auto_mode/status", Bool, queue_size=1)
         self.bridge = CvBridge()
@@ -567,7 +606,9 @@ class control_node(object):
         while not rospy.is_shutdown():
             rospy.loginfo("Mode: %s State: %s",self.modes, self.st)
             if self.st == "C":
-                print("init")                
+                print("init")   
+            elif self.st == "Y":
+                self.first()             
             elif self.modes == "manual" and self.st == "T": #Takeoff
                 self.takeoff()
                 self.sp_pub.publish(self.ps)
