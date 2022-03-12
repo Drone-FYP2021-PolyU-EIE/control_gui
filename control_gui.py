@@ -77,7 +77,7 @@ class control_node(object):
         timg = PIL.Image.open(icon_path+'/Takeoff.jpg')
         tics = timg.resize((30, 30))
         takeic = ImageTk.PhotoImage(tics)
-        self.takeoffbt = tk.Button(manualSate,image = takeic, text="Takeoff", width=100,bd=2, compound="left", cursor="exchange", command = lambda: self.takeoff(),state="disabled")
+        self.takeoffbt = tk.Button(manualSate,image = takeic, text="Takeoff", width=100,bd=2, compound="left", cursor="exchange", command = lambda: self.takeoff())
         self.takeoffbt.pack()
         self.takeoffbt.grid(row=0, column=0, columnspan=1)
         
@@ -518,7 +518,6 @@ class control_node(object):
     def auto(self):
         self.st= "U"
         self.modes = "auto"
-        self.takeoffbt["state"] = "disabled"  
         self.leftbt["state"] = "disabled"
         self.rightbt["state"] = "disabled"
         self.backwardbt["state"] = "disabled"  
@@ -574,8 +573,7 @@ class control_node(object):
         self.ps.pose.orientation.z = self.local_quat_z
         self.ps.pose.orientation.w = self.local_quat_w
         self.modes = "manual"
-        self.st = "M" 
-        self.takeoffbt["state"] = "normal"  
+        self.st = "M"  
         self.leftbt["state"] = "normal" 
         self.rightbt["state"] = "normal"  
         self.backwardbt["state"] = "normal"  
@@ -628,7 +626,7 @@ class control_node(object):
                 print("init")   
             elif self.st == "Y":
                 self.first()             
-            elif self.modes == "manual" and self.st == "T": #Takeoff
+            elif self.st == "T": #Takeoff
                 self.takeoff()
                 self.sp_pub.publish(self.ps)
             elif self.st == "D": #Landing
