@@ -291,23 +291,26 @@ class control_node(object):
         self.detimg.create_image(20,20, anchor = "nw", image = self.dtimg)
 
     def num_cb(self, data):
+        data = data.data 
+        self.modes="Pose"
         if(data == "1"):
             self.st = "F"
-            print("Pose Forward")
         elif(data == "2"):
-            self.st = "F"
+            self.st = "L"
         elif(data == "3"):
-            self.st = "B"
+            self.st = "L"
         elif(data == "4"):
-            self.st = "B"
+            self.st = "R"
         elif(data == "5"):
-            self.st = "R"
+            self.st = "B"
         elif(data == "6"):
-            self.st = "R"
+            self.st = "F"
         elif(data == "7"):
-            self.st = "L"
+            self.st = "R"
         elif(data == "8"):
-            self.st = "L"
+            self.st = "B"
+        else:
+            self.st = "X"
 
     # Update setpoint message
     def hold(self):
