@@ -612,7 +612,7 @@ class control_node(object):
         self.sp_pub = rospy.Publisher('/mavros/setpoint_position/local', PoseStamped, queue_size=10)
         # Subscribe to the cv2 image and pose
         self.pose_subscriber = rospy.Subscriber('/detected_human',Image,self.pose_cb)
-        self.detect_subscriber = rospy.Subscriber('/image',Image,self.detect_cb)
+        self.detect_subscriber = rospy.Subscriber('/detection_result/image',Image,self.detect_cb)
         self.posnm_subscriber = rospy.Subscriber('/detected_human_gesture',String,self.num_cb)
         # un doc change
         self.automode_pub = rospy.Publisher("/auto_mode/status", Bool, queue_size=1)
