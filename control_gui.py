@@ -67,6 +67,9 @@ class control_node(object):
         autobt = tk.Button(conMode, text="Auto", width=10,bd=2, cursor="exchange", command = lambda: self.auto())
         autobt.grid(row=0, column=0, columnspan=1)
 
+        self.initbt = tk.Button(conMode, text="Reinitate", width=10, bd=2, cursor="exchange", command = lambda: self.reinit())
+        self.initbt.grid(row=0, column=2, columnspan=1)
+
         #manualState
         manualSate = tk.LabelFrame(root, text="manualState", width=200)
         manualSate.grid(row=3, column=0, columnspan=5,sticky="W")
@@ -112,49 +115,64 @@ class control_node(object):
         sics = simg.resize((30, 30))
         stopic = ImageTk.PhotoImage(sics)
         self.stopbt = tk.Button(manualSate, text="Hold", image = stopic, width=100, bd=2, compound="left", cursor="exchange", command = lambda: self.hold(),state="disabled")
-        self.stopbt.grid(row=3, column=0, columnspan=1)
+        self.stopbt.grid(row=5, column=0, columnspan=1)
 
         eimg = PIL.Image.open(icon_path+'/exit.jpg')
         eics = eimg.resize((30, 30))
         exitic = ImageTk.PhotoImage(eics)
         self.exitbt = tk.Button(manualSate, text="Exit", image = exitic, width=100, bd=2, compound="left", cursor="exchange", command = lambda: root.destroy())
-        self.exitbt.grid(row=3, column=1, columnspan=1)
+        self.exitbt.grid(row=5, column=1, columnspan=1)
 
-        self.rrightbt = tk.Button(manualSate, text="Rotation right", width=10, bd=2, cursor="exchange", command = lambda: self.z_right(),state="disabled")
-        self.rrightbt.grid(row=1, column=3, columnspan=1)
+        rrimg = PIL.Image.open(icon_path+'/rotate_right.png')
+        rrics = rrimg.resize((30, 30))
+        rric = ImageTk.PhotoImage(rrics)
+        self.rrightbt = tk.Button(manualSate, text="Rotate right", image = rric, width=100, bd=2, compound="left", cursor="exchange", command = lambda: self.z_right(),state="disabled")
+        self.rrightbt.grid(row=4, column=0, columnspan=1)
 
-        self.rleftbt = tk.Button(manualSate, text="Rotation left", width=10, bd=2, cursor="exchange", command = lambda: self.z_left(),state="disabled")
-        self.rleftbt.grid(row=2, column=3, columnspan=1)
+        rlimg = PIL.Image.open(icon_path+'/rotate_left.png')
+        rlics = rlimg.resize((30, 30))
+        rlic = ImageTk.PhotoImage(rlics)
+        self.rleftbt = tk.Button(manualSate, text="Rota left", image = rlic, width=100, bd=2, compound="left", cursor="exchange", command = lambda: self.z_left(),state="disabled")
+        self.rleftbt.grid(row=4, column=1, columnspan=1)
 
-        self.upbt = tk.Button(manualSate, text="Up", width=10, bd=2, cursor="exchange", command = lambda: self.z_up(),state="disabled")
-        self.upbt.grid(row=1, column=2, columnspan=1)
+        upimg = PIL.Image.open(icon_path+'/up.png')
+        upics = upimg.resize((30, 30))
+        upic = ImageTk.PhotoImage(upics)
+        self.upbt = tk.Button(manualSate, text="Up", image = upic, width=100, bd=2, compound="left", cursor="exchange", command = lambda: self.z_up(),state="disabled")
+        self.upbt.grid(row=3, column=0, columnspan=1)
 
-        self.downbt = tk.Button(manualSate, text="Down", width=10, bd=2, cursor="exchange", command = lambda: self.z_down(),state="disabled")
-        self.downbt.grid(row=2, column=2, columnspan=1)
+        downimg = PIL.Image.open(icon_path+'/down.jpg')
+        downics = downimg.resize((30, 30))
+        downic = ImageTk.PhotoImage(downics)
+        self.downbt = tk.Button(manualSate, text="Down", image = downic, width=100, bd=2, compound="left", cursor="exchange", command = lambda: self.z_down(),state="disabled")
+        self.downbt.grid(row=3, column=1, columnspan=1)
 
-        self.initbt = tk.Button(manualSate, text="Reinitate", width=10, bd=2, cursor="exchange", command = lambda: self.reinit())
-        self.initbt.grid(row=0, column=2, columnspan=1)
+        
 
+        # Label for show state
         self.var = tk.StringVar()
         label = tk.Label(root,textvariable= self.var, bg = "white" ,height = 2, width = 50, relief = "solid",cursor="exchange")
         label.grid(row=1, column=1, columnspan=5,sticky="W")
         
+        # Label for show Position
         positionSate = tk.LabelFrame(root, text="Show Current Position", width=200)
         positionSate.grid(row=4, column=0, columnspan=5,sticky="W")
         posscroll = tk.Scrollbar(positionSate) 
         posscroll.pack(side = "right", fill = "y") 
-        self.poslist = tk.Listbox(positionSate, width=52, yscrollcommand = posscroll.set )  
+        self.poslist = tk.Listbox(positionSate, width=51, yscrollcommand = posscroll.set )  
         self.poslist.pack(side = "left", fill = "both")    
         posscroll.config(command = self.poslist.yview) 
 
+        # Label for show Quaternion
         oriSate = tk.LabelFrame(root, text="Show Current Quaternion", width=200)
-        oriSate.grid(row=5, column=0, columnspan=5,sticky="W")
+        oriSate.grid(row=4, column=4, columnspan=5,sticky="W")
         oriscroll = tk.Scrollbar(oriSate) 
         oriscroll.pack(side = "right", fill = "y") 
-        self.orilist = tk.Listbox(oriSate, width=80, yscrollcommand = oriscroll.set )  
+        self.orilist = tk.Listbox(oriSate, width=85, yscrollcommand = oriscroll.set )  
         self.orilist.pack(side = "left", fill = "both")    
         oriscroll.config(command = self.orilist.yview) 
 
+        # Set Position
         setposSate = tk.LabelFrame(root, text="Set Position", width=200)
         setposSate.grid(row=6, column=0, columnspan=5,sticky="W")
         xlabel = tk.Label(setposSate, text="x:")
@@ -185,14 +203,14 @@ class control_node(object):
 
         # Add image from detection
         poseimage = tk.LabelFrame(root, text="Show the Pose", width=400, height = 220)
-        poseimage.grid(row=4, column=5, columnspan=5,sticky="W")
-        self.poseimg = tk.Canvas(poseimage, width = 300, height = 200)  
-        self.poseimg.grid(row=4, column=4, columnspan=1)
+        poseimage.grid(row=3, column=5, columnspan=5,sticky="W")
+        self.poseimg = tk.Canvas(poseimage, width = 350, height = 280)  
+        self.poseimg.grid(row=0, column=0, columnspan=1)
 
         deteimage = tk.LabelFrame(root, text="Show the Detection", width=400, height = 220)
-        deteimage.grid(row=3, column=5, columnspan=5,sticky="W")
-        self.detimg = tk.Canvas(deteimage, width = 300, height = 200)  
-        self.detimg.grid(row=3, column=4, columnspan=1)
+        deteimage.grid(row=3, column=3, columnspan=5,sticky="W")
+        self.detimg = tk.Canvas(deteimage, width = 440, height = 280)  
+        self.detimg.grid(row=0, column=0, columnspan=1)
 
         self.setArm()
         # We need to send few setpoint messages, then activate OFFBOARD mode, to take effect
@@ -275,6 +293,7 @@ class control_node(object):
     def num_cb(self, data):
         if(data == "1"):
             self.st = "F"
+            print("Pose Forward")
         elif(data == "2"):
             self.st = "F"
         elif(data == "3"):
