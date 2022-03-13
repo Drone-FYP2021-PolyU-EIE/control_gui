@@ -273,7 +273,6 @@ class control_node(object):
         self.canvas.create_image(20,20,anchor = "nw", image = self.cvimgtk)
 
     def detect_cb(self,data):
-        
         try:
             self.dt_image = np.asarray(self.bridge.imgmsg_to_cv2(data, "8UC3"))
         except CvBridgeError as e:
