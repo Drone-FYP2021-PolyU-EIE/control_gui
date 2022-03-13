@@ -147,8 +147,6 @@ class control_node(object):
         self.downbt = tk.Button(manualSate, text="Down", image = downic, width=100, bd=2, compound="left", cursor="exchange", command = lambda: self.z_down(),state="disabled")
         self.downbt.grid(row=3, column=1, columnspan=1)
 
-        
-
         # Label for show state
         self.var = tk.StringVar()
         label = tk.Label(root,textvariable= self.var, bg = "white" ,height = 2, width = 50, relief = "solid",cursor="exchange")
