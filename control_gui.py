@@ -200,14 +200,14 @@ class control_node(object):
         self.canvas.grid(row=3, column=4, columnspan=1)
 
         # Add image from detection
-        poseimage = tk.LabelFrame(root, text="Show the Pose", width=400, height = 220)
-        poseimage.grid(row=3, column=5, columnspan=5,sticky="W")
-        self.poseimg = tk.Canvas(poseimage, width = 350, height = 280)  
+        poseimage = tk.LabelFrame(root, text="Show the Pose", width=320, height = 480)
+        poseimage.grid(row=3, column=8, columnspan=5,sticky="W")
+        self.poseimg = tk.Canvas(poseimage, width = 320, height = 480)  
         self.poseimg.grid(row=0, column=0, columnspan=1)
 
-        deteimage = tk.LabelFrame(root, text="Show the Detection", width=400, height = 220)
+        deteimage = tk.LabelFrame(root, text="Show the Detection", width=640, height = 480)
         deteimage.grid(row=3, column=3, columnspan=5,sticky="W")
-        self.detimg = tk.Canvas(deteimage, width = 440, height = 280)  
+        self.detimg = tk.Canvas(deteimage, width = 640, height = 480)  
         self.detimg.grid(row=0, column=0, columnspan=1)
 
         self.setArm()
@@ -267,10 +267,10 @@ class control_node(object):
         blue,green,red = cv2.split(self.cv_image)
         self.cv_image = cv2.merge((red,green,blue))
         self.cvimg = PIL.Image.fromarray(self.cv_image)
-        self.cvimg  = self.cvimg.resize((250, 200))
+        self.cvimg  = self.cvimg.resize((320, 480))
 
         self.cvimgtk = ImageTk.PhotoImage(image = self.cvimg)
-        self.canvas.create_image(20,20,anchor = "nw", image = self.cvimgtk)
+        self.poseimg.create_image(20,20,anchor = "nw", image = self.cvimgtk)
 
     def detect_cb(self,data):
         try:
@@ -282,8 +282,8 @@ class control_node(object):
         blue,green,red = cv2.split(self.dt_image)
         self.dt_image = cv2.merge((red,green,blue))
         self.dtimg = PIL.Image.fromarray(self.dt_image)
-        self.dtimg  = self.dtimg.resize((250, 200))
-
+        self.dtimg  = self.dtimg.resize((640, 480))
+        
         self.dtimg = ImageTk.PhotoImage(image = self.dtimg)
         self.detimg.create_image(20,20, anchor = "nw", image = self.dtimg)
 
