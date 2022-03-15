@@ -57,9 +57,15 @@ class control_node(object):
         title.grid(row=0, column=1,sticky="")
         titlef.grid(row=0, column=0, columnspan=5,sticky="")
 
+        row1 = tk.LabelFrame(root, width=200)
+        row1.grid(row=2, column=0, columnspan=1,sticky="")
+
+        ModeLF = tk.LabelFrame(row1, width=200)
+        ModeLF.grid(row=0, column=0, columnspan=1,sticky="W")
+
         #Control modes
-        conMode = tk.LabelFrame(root, text="Control Modes", width=200)
-        conMode.grid(row=2, column=0, columnspan=5,sticky="W")
+        conMode = tk.LabelFrame(ModeLF, text="Control Modes", width=200)
+        conMode.grid(row=0, column=0, columnspan=1,sticky="W")
 
         offbt = tk.Button(conMode, text="Manual", width=10,bd=2, cursor="exchange", command = lambda: self.manual())
         offbt.grid(row=0, column=1, columnspan=1)
@@ -71,8 +77,8 @@ class control_node(object):
         self.initbt.grid(row=0, column=2, columnspan=1)
 
         #manualState
-        manualSate = tk.LabelFrame(root, text="manualState", width=200)
-        manualSate.grid(row=3, column=0, columnspan=5,sticky="W")
+        manualSate = tk.LabelFrame(ModeLF, text="manualState", width=200)
+        manualSate.grid(row=1, column=0, columnspan=1,sticky="W")
 
         timg = PIL.Image.open(icon_path+'/Takeoff.jpg')
         tics = timg.resize((30, 30))
@@ -150,23 +156,23 @@ class control_node(object):
         # Label for show state
         self.var = tk.StringVar()
         label = tk.Label(root,textvariable= self.var, bg = "white" ,height = 2, width = 50, relief = "solid",cursor="exchange")
-        label.grid(row=1, column=1, columnspan=5,sticky="W")
+        label.grid(row=1, column=0, columnspan=5,sticky="W")
         
         # Label for show Position
-        positionSate = tk.LabelFrame(root, text="Show Current Position", width=200)
-        positionSate.grid(row=4, column=0, columnspan=5,sticky="W")
+        positionSate = tk.LabelFrame(ModeLF, text="Show Current Position", width=60)
+        positionSate.grid(row=2, column=0, columnspan=1,sticky="W")
         posscroll = tk.Scrollbar(positionSate) 
         posscroll.pack(side = "right", fill = "y") 
-        self.poslist = tk.Listbox(positionSate, width=51, yscrollcommand = posscroll.set )  
+        self.poslist = tk.Listbox(positionSate, width=51, height = 8, yscrollcommand = posscroll.set )  
         self.poslist.pack(side = "left", fill = "both")    
         posscroll.config(command = self.poslist.yview) 
 
         # Label for show Quaternion
-        oriSate = tk.LabelFrame(root, text="Show Current Quaternion", width=200)
-        oriSate.grid(row=4, column=4, columnspan=5,sticky="W")
+        oriSate = tk.LabelFrame(root, text="Show Current Quaternion", width=85)
+        oriSate.grid(row=3, column=0, columnspan=1,sticky="W")
         oriscroll = tk.Scrollbar(oriSate) 
         oriscroll.pack(side = "right", fill = "y") 
-        self.orilist = tk.Listbox(oriSate, width=85, yscrollcommand = oriscroll.set )  
+        self.orilist = tk.Listbox(oriSate, width=80,height = 8, yscrollcommand = oriscroll.set )  
         self.orilist.pack(side = "left", fill = "both")    
         oriscroll.config(command = self.orilist.yview) 
 
@@ -196,17 +202,14 @@ class control_node(object):
         self.clearbt = tk.Button(setposSate, text="Clear", width=10, bd=2, cursor="exchange", command = lambda: self.clear(),state="disabled")
         self.clearbt.grid(row=1, column=1, columnspan=1)
 
-        self.canvas = tk.Canvas(root, width = 250, height = 200)  
-        self.canvas.grid(row=3, column=4, columnspan=1)
-
         # Add image from detection
-        poseimage = tk.LabelFrame(root, text="Show the Pose", width=320, height = 480)
-        poseimage.grid(row=3, column=8, columnspan=5,sticky="W")
+        poseimage = tk.LabelFrame(row1, text="Show the Pose", width=320, height = 480)
+        poseimage.grid(row=0, column=2, columnspan=5,sticky="W")
         self.poseimg = tk.Canvas(poseimage, width = 320, height = 480)  
         self.poseimg.grid(row=0, column=0, columnspan=1)
 
-        deteimage = tk.LabelFrame(root, text="Show the Detection", width=640, height = 480)
-        deteimage.grid(row=3, column=3, columnspan=5,sticky="W")
+        deteimage = tk.LabelFrame(row1, text="Show the Detection", width=640, height = 480)
+        deteimage.grid(row=0, column=1, columnspan=1,sticky="W")
         self.detimg = tk.Canvas(deteimage, width = 640, height = 480)  
         self.detimg.grid(row=0, column=0, columnspan=1)
 
@@ -260,8 +263,6 @@ class control_node(object):
             self.cv_image = np.asarray(self.bridge.imgmsg_to_cv2(data, "8UC3"))
         except CvBridgeError as e:
             print(e)
-        # print('called')
-        # cv2.imshow('image',self.cv_image)
         cv2.waitKey(1)
         #Rearrange colors
         blue,green,red = cv2.split(self.cv_image)
