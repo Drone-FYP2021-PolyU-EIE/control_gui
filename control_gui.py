@@ -310,6 +310,19 @@ class control_node(object):
         else:
             self.st = "X"
 
+    def movenum_cb(self, data):
+        data = data.data.split(';')
+        if(data[0] == "1"):
+            self.z_left()
+        elif(data[0] == "0"):
+            self.hold()
+        elif(data[0] == "-1"):
+            self.z_right()
+        if(data[1] > "3000"):
+            self.y_forward()
+        else:
+            self.hold()
+
     # Update setpoint message
     def hold(self):
         self.ps.pose.position.x = self.local_pos_x
