@@ -313,15 +313,15 @@ class control_node(object):
     def movenum_cb(self, data):
         data = data.data.split(';')
         if(data[0] == "1"):
-            self.z_left()
+            self.st="S"
         elif(data[0] == "0"):
-            self.hold()
+            self.st = "X"
         elif(data[0] == "-1"):
-            self.z_right()
+            self.st="A"
         if(data[1] > "3000"):
-            self.y_forward()
+            self.st="F"
         else:
-            self.hold()
+            self.st = "X"
 
     # Update setpoint message
     def hold(self):
