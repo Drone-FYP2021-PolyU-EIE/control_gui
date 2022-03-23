@@ -291,24 +291,25 @@ class control_node(object):
     def num_cb(self, data):
         data = data.data 
         self.modes="Pose"
-        if(data == "1"):
-            self.st = "F"
-        elif(data == "2"):
-            self.st = "L"
-        elif(data == "3"):
-            self.st = "L"
-        elif(data == "4"):
-            self.st = "R"
-        elif(data == "5"):
-            self.st = "B"
-        elif(data == "6"):
-            self.st = "F"
-        elif(data == "7"):
-            self.st = "R"
-        elif(data == "8"):
-            self.st = "B"
-        else:
-            self.st = "X"
+        if(self.st != "D" and "E"):
+            if(data == "1"):
+                self.st = "F"
+            elif(data == "2"):
+                self.st = "L"
+            elif(data == "3"):
+                self.st = "L"
+            elif(data == "4"):
+                self.st = "R"
+            elif(data == "5"):
+                self.st = "B"
+            elif(data == "6"):
+                self.st = "F"
+            elif(data == "7"):
+                self.st = "R"
+            elif(data == "8"):
+                self.st = "B"
+            else:
+                self.st = "X"
 
     def movenum_cb(self, data):
         data = data.data.split(';')
@@ -339,7 +340,7 @@ class control_node(object):
     def takeoff(self):
         self.ps.pose.position.x = self.local_pos_x
         self.ps.pose.position.y = self.local_pos_y
-        self.ps.pose.position.z = 2
+        self.ps.pose.position.z = 0.8
         self.ps.pose.orientation.x = self.local_quat_x 
         self.ps.pose.orientation.y = self.local_quat_y
         self.ps.pose.orientation.z = self.local_quat_z
@@ -348,13 +349,13 @@ class control_node(object):
         self.st="T"
         self.poslist.insert(0, "local position x: {} local position y: {} local position z: {}".format(self.local_pos_x,self.local_pos_y,self.local_pos_z))
         self.orilist.insert(0, "local quaternion x: {} local quaternion y: {} local quaternion z: {} local quaternion w: {}".format(self.local_quat_x,self.local_quat_y,self.local_quat_z,self.local_quat_w))
-        if (self.local_pos_z >= 2):
+        if (self.local_pos_z >= 0.8):
             self.var.set("Takeoff successfully")
         else:
-            self.var.set("Takeoff to the hight of 2 meters")
+            self.var.set("Takeoff to the hight of 0.8 meters")
 
     def x_right(self):
-        self.ps.pose.position.x = (self.local_pos_x + 0.5)
+        self.ps.pose.position.x = (self.local_pos_x + 0.05)
         self.ps.pose.position.y = self.local_pos_y
         self.ps.pose.position.z = self.local_pos_z
         self.ps.pose.orientation.x = self.local_quat_x 
@@ -366,7 +367,7 @@ class control_node(object):
         self.st="R"
 
     def x_left(self):
-        self.ps.pose.position.x = (self.local_pos_x - 0.5)
+        self.ps.pose.position.x = (self.local_pos_x - 0.05)
         self.ps.pose.position.y = self.local_pos_y
         self.ps.pose.position.z = self.local_pos_z
         self.ps.pose.orientation.x = self.local_quat_x 
@@ -379,7 +380,7 @@ class control_node(object):
 
     def y_forward(self):
         self.ps.pose.position.x = self.local_pos_x
-        self.ps.pose.position.y = (self.local_pos_y + 0.5)
+        self.ps.pose.position.y = (self.local_pos_y + 0.05)
         self.ps.pose.position.z = self.local_pos_z
         self.ps.pose.orientation.x = self.local_quat_x 
         self.ps.pose.orientation.y = self.local_quat_y
@@ -391,7 +392,7 @@ class control_node(object):
 
     def y_back(self):
         self.ps.pose.position.x = self.local_pos_x
-        self.ps.pose.position.y = (self.local_pos_y - 0.5)
+        self.ps.pose.position.y = (self.local_pos_y - 0.05)
         self.ps.pose.position.z = self.local_pos_z
         self.ps.pose.orientation.x = self.local_quat_x 
         self.ps.pose.orientation.y = self.local_quat_y
@@ -439,7 +440,7 @@ class control_node(object):
         self.ps.pose.position.z = self.local_pos_z
         self.ps.pose.orientation.x = self.local_quat_x 
         self.ps.pose.orientation.y = self.local_quat_y
-        self.ps.pose.orientation.z = self.local_quat_z - 0.1
+        self.ps.pose.orientation.z = self.local_quat_z - 0.01
         self.ps.pose.orientation.w = self.local_quat_w
         print("rotate right")
         self.var.set("rotate right")
@@ -451,7 +452,7 @@ class control_node(object):
         self.ps.pose.position.z = self.local_pos_z
         self.ps.pose.orientation.x = self.local_quat_x 
         self.ps.pose.orientation.y = self.local_quat_y
-        self.ps.pose.orientation.z = self.local_quat_z + 0.1
+        self.ps.pose.orientation.z = self.local_quat_z + 0.01
         self.ps.pose.orientation.w = self.local_quat_w
         print("rotate left")
         self.var.set("rotate left")
@@ -460,7 +461,7 @@ class control_node(object):
     def z_up(self):
         self.ps.pose.position.x = self.local_pos_x
         self.ps.pose.position.y = self.local_pos_y
-        self.ps.pose.position.z = (self.local_pos_z + 0.5)
+        self.ps.pose.position.z = (self.local_pos_z + 0.05)
         self.ps.pose.orientation.x = self.local_quat_x 
         self.ps.pose.orientation.y = self.local_quat_y
         self.ps.pose.orientation.z = self.local_quat_z
@@ -472,7 +473,7 @@ class control_node(object):
     def z_down(self):
         self.ps.pose.position.x = self.local_pos_x
         self.ps.pose.position.y = self.local_pos_y
-        self.ps.pose.position.z = (self.local_pos_z - 0.5)
+        self.ps.pose.position.z = (self.local_pos_z - 0.05)
         self.ps.pose.orientation.x = self.local_quat_x 
         self.ps.pose.orientation.y = self.local_quat_y
         self.ps.pose.orientation.z = self.local_quat_z
