@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+from cmath import sqrt
 import rospy
 import threading
 import tkinter as tk
@@ -332,13 +333,16 @@ class control_node(object):
 
     def movenum_cb(self, data):
         data = data.data.split(';')
+        d = int(data[1])/1000
+        z = self.local_pos_z
+        distance = (d**2+(z-0.8)**2)**0.5
         if(data[0] == "1"):
             self.st="S"
         elif(data[0] == "0"):
             self.st = "X"
-            if(data[1] > "3000"):
+            if(distance > "1"):
                 self.st="F"
-            elif(data[1] < "3000"):
+            elif(distance < "1"):
                 self.st = "Q"
         elif(data[0] == "-1"):
             self.st="A"
@@ -669,6 +673,7 @@ class control_node(object):
         self.pose_subscriber = rospy.Subscriber('/detected_human',Image,self.pose_cb)
         self.detect_subscriber = rospy.Subscriber('/detection_result/image',Image,self.detect_cb)
         self.posnm_subscriber = rospy.Subscriber('/detected_human_gesture',String,self.num_cb)
+        self.human_pos_subscriber = rospy.Subscriber('/detected_human_pos',String,self.movenum_cb)
         # un doc change
         self.automode_pub = rospy.Publisher("/auto_mode/status", Bool, queue_size=1)
         self.bridge = CvBridge()
