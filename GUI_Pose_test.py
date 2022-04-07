@@ -340,9 +340,9 @@ class control_node(object):
             self.st="S"
         elif(data[0] == "0"):
             self.st = "X"
-            if(distance > "1"):
+            if(distance > 1):
                 self.st="F"
-            elif(distance < "1"):
+            elif(distance < 1):
                 self.st = "Q"
         elif(data[0] == "-1"):
             self.st="A"
