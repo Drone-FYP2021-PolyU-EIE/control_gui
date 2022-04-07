@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-from cmath import sqrt
+import math
 import rospy
 import threading
 import tkinter as tk
@@ -403,6 +403,9 @@ class control_node(object):
         self.st="L"
 
     def y_forward(self):
+        atan2Angle = self.local_quat_z*180
+        self.final_x= self.local_pos_x + 0.5*math.cos(atan2Angle) - 0*math.sin(atan2Angle)
+        self.final_y= self.local_pos_y + 0.5*math.sin(atan2Angle) + 0*math.cos(atan2Angle)
         self.ps.pose.position.x = self.local_pos_x
         self.ps.pose.position.y = (self.local_pos_y + 0.5)
         self.ps.pose.position.z = self.local_pos_z
@@ -415,6 +418,9 @@ class control_node(object):
         self.st="F"
 
     def y_back(self):
+        atan2Angle = self.local_quat_z*180
+        self.final_x= self.local_pos_x - 0.5*math.cos(atan2Angle) - 0*math.sin(atan2Angle)
+        self.final_y= self.local_pos_y - 0.5*math.sin(atan2Angle) + 0*math.cos(atan2Angle)
         self.ps.pose.position.x = self.local_pos_x
         self.ps.pose.position.y = (self.local_pos_y - 0.5)
         self.ps.pose.position.z = self.local_pos_z
