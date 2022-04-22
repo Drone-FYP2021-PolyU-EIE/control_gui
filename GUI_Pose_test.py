@@ -91,7 +91,7 @@ class control_node(object):
         droneCon = tk.LabelFrame(manualSate, text="DroneControl", width=200)
         droneCon.grid(row=0, column=0, columnspan=1,sticky="W")
 
-        gripCon = tk.LabelFrame(manualSate, text="DroneControl", width=200)
+        gripCon = tk.LabelFrame(manualSate, text="GripperControl", width=200)
         gripCon.grid(row=0, column=1, columnspan=1,sticky="W")
 
         timg = PIL.Image.open(icon_path+'/Takeoff.jpg')
@@ -264,6 +264,23 @@ class control_node(object):
             print ("service set_mode call failed: %s. Offboard Mode could not be set."%e)
 	# Callbacks
     # local position callback
+
+    def setDisarm(self):
+        rospy.wait_for_service('mavros/cmd/arming')
+        try:
+            armService = rospy.ServiceProxy('mavros/cmd/arming', mavros_msgs.srv.CommandBool)
+            armService(False)
+        except rospy.ServiceException as e:
+            print ("Service disarming call failed: %s"%e)
+
+    def setAutoLandMode(self):
+        rospy.wait_for_service('mavros/set_mode')
+        try:
+            flightModeService = rospy.ServiceProxy('mavros/set_mode', mavros_msgs.srv.SetMode)
+            flightModeService(custom_mode='AUTO.LAND')
+        except rospy.ServiceException as e:
+               print ("service set_mode call failed: %s. Autoland Mode could not be set."%e)
+
     def pos_cb(self, msg):
         self.local_pos_x = round(msg.pose.position.x,1)
         self.local_pos_y = round(msg.pose.position.y,1)
@@ -367,7 +384,7 @@ class control_node(object):
         self.ps.pose.position.z = 0.8
         self.ps.pose.orientation.x = self.local_quat_x 
         self.ps.pose.orientation.y = self.local_quat_y
-        self.ps.pose.orientation.z = self.local_quat_z
+        self.ps.pose.orientation.z = 0
         self.ps.pose.orientation.w = self.local_quat_w
         print("takeoff")
         self.st="T"
@@ -379,7 +396,17 @@ class control_node(object):
             self.var.set("Takeoff to the hight of 0.8 meters")
 
     def x_right(self):
-        self.ps.pose.position.x = (self.local_pos_x + 0.5)
+        # if(self.local_quat_z == 0):
+        #     self.ps.pose.position.x = self.local_pos_x + 0.5
+        #     self.ps.pose.position.y = self.local_pos_y 
+        # else:
+        #     ang = self.local_quat_z*180
+        #     self.local_x= self.local_pos_x - 0.5*math.cos(ang) + 0*math.sin(ang)
+        #     self.local_y= self.local_pos_y - 0.5*math.sin(ang) - 0*math.cos(ang) 
+                   
+        #     self.ps.pose.position.x = self.local_x
+        #     self.ps.pose.position.y = self.local_y
+        self.ps.pose.position.x = self.local_pos_x + 0.2
         self.ps.pose.position.y = self.local_pos_y
         self.ps.pose.position.z = self.local_pos_z
         self.ps.pose.orientation.x = self.local_quat_x 
@@ -391,7 +418,16 @@ class control_node(object):
         self.st="R"
 
     def x_left(self):
-        self.ps.pose.position.x = (self.local_pos_x - 0.5)
+        
+        # if(self.local_quat_z == 0):
+        #     self.ps.pose.position.x = self.local_pos_x - 0.5
+        #     self.ps.pose.position.y = self.local_pos_y 
+        # else:
+        #     ang = self.local_quat_z*180
+        #     self.local_x= self.local_pos_x + 0.5*math.cos(ang) - 0*math.sin(ang)
+        #     self.local_y= self.local_pos_y + 0.5*math.sin(ang) + 0*math.cos(ang) 
+            
+        self.ps.pose.position.x = self.local_pos_x - 0.2
         self.ps.pose.position.y = self.local_pos_y
         self.ps.pose.position.z = self.local_pos_z
         self.ps.pose.orientation.x = self.local_quat_x 
@@ -403,11 +439,17 @@ class control_node(object):
         self.st="L"
 
     def y_forward(self):
-        atan2Angle = self.local_quat_z*180
-        self.final_x= self.local_pos_x + 0.5*math.cos(atan2Angle) - 0*math.sin(atan2Angle)
-        self.final_y= self.local_pos_y + 0.5*math.sin(atan2Angle) + 0*math.cos(atan2Angle)
+        # if(self.local_quat_z == 0):
+        #     self.ps.pose.position.x = self.local_pos_x 
+        #     self.ps.pose.position.y = self.local_pos_y + 0.5
+        # else:
+        #     ang = self.local_quat_z*180
+        #     self.local_x= self.local_pos_x + 0*math.cos(ang) + 0.5*math.sin(ang)
+        #     self.local_y= self.local_pos_y + 0*math.sin(ang) - 0.5*math.cos(ang)        
+        #     self.ps.pose.position.x = self.local_x
+        #     self.ps.pose.position.y = self.local_y
         self.ps.pose.position.x = self.local_pos_x
-        self.ps.pose.position.y = (self.local_pos_y + 0.5)
+        self.ps.pose.position.y = self.local_pos_y + 0.2
         self.ps.pose.position.z = self.local_pos_z
         self.ps.pose.orientation.x = self.local_quat_x 
         self.ps.pose.orientation.y = self.local_quat_y
@@ -418,12 +460,18 @@ class control_node(object):
         self.st="F"
 
     def y_back(self):
-        atan2Angle = self.local_quat_z*180
-        self.final_x= self.local_pos_x - 0.5*math.cos(atan2Angle) - 0*math.sin(atan2Angle)
-        self.final_y= self.local_pos_y - 0.5*math.sin(atan2Angle) + 0*math.cos(atan2Angle)
+        # if(self.local_quat_z == 0):
+        #     self.ps.pose.position.x = self.local_pos_x 
+        #     self.ps.pose.position.y = self.local_pos_y - 0.5
+        # else:
+        #     ang = self.local_quat_z*180
+        #     self.local_x= self.local_pos_x + 0*math.cos(ang) - 0.5*math.sin(ang)
+        #     self.local_y= self.local_pos_y + 0*math.sin(ang) + 0.5*math.cos(ang)       
+        #     self.ps.pose.position.x = self.local_x
+        #     self.ps.pose.position.y = self.local_y
         self.ps.pose.position.x = self.local_pos_x
-        self.ps.pose.position.y = (self.local_pos_y - 0.5)
-        self.ps.pose.position.z = self.local_pos_z
+        self.ps.pose.position.y = self.local_pos_y - 0.2  
+        self.ps.pose.position.z = self.local_pos_z     
         self.ps.pose.orientation.x = self.local_quat_x 
         self.ps.pose.orientation.y = self.local_quat_y
         self.ps.pose.orientation.z = self.local_quat_z
@@ -433,6 +481,8 @@ class control_node(object):
         self.st="B"
 
     def landing(self):
+        self.setAutoLandMode()
+        self.setDisarm()
         self.ps.pose.position.x = self.local_pos_x
         self.ps.pose.position.y = self.local_pos_y
         self.ps.pose.position.z = 0
@@ -443,7 +493,7 @@ class control_node(object):
         self.var.set("Landing")
         print("landing")
         self.st="D"
-        if (self.local_pos_z <= 0):
+        if (self.local_pos_z <= 0.4):
             self.st= "E"
             
             if not self.state.MODE_PX4_LAND:
@@ -470,7 +520,7 @@ class control_node(object):
         self.ps.pose.position.z = self.local_pos_z
         self.ps.pose.orientation.x = self.local_quat_x 
         self.ps.pose.orientation.y = self.local_quat_y
-        self.ps.pose.orientation.z = self.local_quat_z - 0.1
+        self.ps.pose.orientation.z = self.local_quat_z + 0.1
         self.ps.pose.orientation.w = self.local_quat_w
         print("rotate right")
         self.var.set("rotate right")
@@ -482,7 +532,7 @@ class control_node(object):
         self.ps.pose.position.z = self.local_pos_z
         self.ps.pose.orientation.x = self.local_quat_x 
         self.ps.pose.orientation.y = self.local_quat_y
-        self.ps.pose.orientation.z = self.local_quat_z + 0.1
+        self.ps.pose.orientation.z = self.local_quat_z - 0.1
         self.ps.pose.orientation.w = self.local_quat_w
         print("rotate left")
         self.var.set("rotate left")
@@ -491,7 +541,7 @@ class control_node(object):
     def z_up(self):
         self.ps.pose.position.x = self.local_pos_x
         self.ps.pose.position.y = self.local_pos_y
-        self.ps.pose.position.z = (self.local_pos_z + 0.5)
+        self.ps.pose.position.z = (self.local_pos_z + 0.2)
         self.ps.pose.orientation.x = self.local_quat_x 
         self.ps.pose.orientation.y = self.local_quat_y
         self.ps.pose.orientation.z = self.local_quat_z
@@ -503,7 +553,7 @@ class control_node(object):
     def z_down(self):
         self.ps.pose.position.x = self.local_pos_x
         self.ps.pose.position.y = self.local_pos_y
-        self.ps.pose.position.z = (self.local_pos_z - 0.5)
+        self.ps.pose.position.z = (self.local_pos_z - 0.2)
         self.ps.pose.orientation.x = self.local_quat_x 
         self.ps.pose.orientation.y = self.local_quat_y
         self.ps.pose.orientation.z = self.local_quat_z
@@ -580,35 +630,35 @@ class control_node(object):
         self.setposbt["state"] = "disabled"
         self.clearbt["state"] = "disabled"
         self.var.set("Auto loop")
-        if (self.local_pos_z < 0.7):
-            self.ps.pose.position.x = self.local_pos_x
-            self.ps.pose.position.y = self.local_pos_y
-            self.ps.pose.position.z = 0.8
-            self.sp_pub.publish(self.ps)
-        elif (self.local_pos_z >= 0.8)&(self.local_pos_x <= 1)&(self.local_pos_y <= 0.2):
-            self.ps.pose.position.x = (self.local_pos_x + 0.5)
-            self.ps.pose.position.y = self.local_pos_y
-            self.ps.pose.position.z = self.local_pos_z
-            self.sp_pub.publish(self.ps)
-        elif (self.local_pos_z >= 0.8)&(self.local_pos_x >= 1)&(self.local_pos_y <= 1):
-            self.ps.pose.position.x = self.local_pos_x
-            self.ps.pose.position.y = (self.local_pos_y + 0.5)
-            self.ps.pose.position.z = self.local_pos_z
-            self.sp_pub.publish(self.ps)
-        elif (self.local_pos_z >= 0.8)&(self.local_pos_x >= 0)&(self.local_pos_y >= 1):
-            self.ps.pose.position.x = (self.local_pos_x - 0.5)
-            self.ps.pose.position.y = self.local_pos_y
-            self.ps.pose.position.z = self.local_pos_z
-            self.sp_pub.publish(self.ps)   
-        elif (self.local_pos_z >= 0.8)&(self.local_pos_x <= 0)&(self.local_pos_y >= 0):
-            self.ps.pose.position.x = self.local_pos_x
-            self.ps.pose.position.y = (self.local_pos_y - 0.5)
-            self.ps.pose.position.z = self.local_pos_z
-            self.sp_pub.publish(self.ps)   
-        elif (self.local_pos_z >= 0.8)&(self.local_pos_x == 0)&(self.local_pos_y == 0): 
-                self.landing() 
-                self.var.set("Landing")  
-                self.sp_pub.publish(self.ps)
+        # if (self.local_pos_z < 0.7):
+        #     self.ps.pose.position.x = self.local_pos_x
+        #     self.ps.pose.position.y = self.local_pos_y
+        #     self.ps.pose.position.z = 0.8
+        #     self.sp_pub.publish(self.ps)
+        # elif (self.local_pos_z >= 0.8)&(self.local_pos_x <= 1)&(self.local_pos_y <= 0.2):
+        #     self.ps.pose.position.x = (self.local_pos_x + 0.5)
+        #     self.ps.pose.position.y = self.local_pos_y
+        #     self.ps.pose.position.z = self.local_pos_z
+        #     self.sp_pub.publish(self.ps)
+        # elif (self.local_pos_z >= 0.8)&(self.local_pos_x >= 1)&(self.local_pos_y <= 1):
+        #     self.ps.pose.position.x = self.local_pos_x
+        #     self.ps.pose.position.y = (self.local_pos_y + 0.5)
+        #     self.ps.pose.position.z = self.local_pos_z
+        #     self.sp_pub.publish(self.ps)
+        # elif (self.local_pos_z >= 0.8)&(self.local_pos_x >= 0)&(self.local_pos_y >= 1):
+        #     self.ps.pose.position.x = (self.local_pos_x - 0.5)
+        #     self.ps.pose.position.y = self.local_pos_y
+        #     self.ps.pose.position.z = self.local_pos_z
+        #     self.sp_pub.publish(self.ps)   
+        # elif (self.local_pos_z >= 0.8)&(self.local_pos_x <= 0)&(self.local_pos_y >= 0):
+        #     self.ps.pose.position.x = self.local_pos_x
+        #     self.ps.pose.position.y = (self.local_pos_y - 0.5)
+        #     self.ps.pose.position.z = self.local_pos_z
+        #     self.sp_pub.publish(self.ps)   
+        # elif (self.local_pos_z >= 0.8)&(self.local_pos_x == 0)&(self.local_pos_y == 0): 
+        #         self.landing() 
+        #         self.var.set("Landing")  
+        #         self.sp_pub.publish(self.ps)
 
     def manual(self):
         self.ps.pose.position.x = self.local_pos_x
